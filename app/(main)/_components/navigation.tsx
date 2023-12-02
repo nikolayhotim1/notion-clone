@@ -32,8 +32,12 @@ import {
 	PopoverContent
 } from '@/components/ui/popover'
 import TrashBox from './trash-box'
+import { useSearch } from '@/hooks/use-search'
+import { useSettings } from '@/hooks/use-settings'
 
 export default function Navigation() {
+	const search = useSearch()
+	const settings = useSettings()
 	const router = useRouter()
 	const pathname = usePathname()
 	const isMobile = useMediaQuery('(max-width: 768px)')
@@ -43,7 +47,6 @@ export default function Navigation() {
 	const navbarRef = useRef<ElementRef<'div'>>(null)
 	const [isResetting, setIsResetting] = useState(false)
 	const [isCollapsed, setIsCollapsed] = useState(isMobile)
-
 	const resetWidth = useCallback(() => {
 		if (sidebarRef.current && navbarRef.current) {
 			setIsCollapsed(false)
@@ -60,14 +63,12 @@ export default function Navigation() {
 			setTimeout(() => setIsResetting(false), 300)
 		}
 	}, [isMobile])
-
 	useEffect(() => {
-		if (isMobile) collapse()
+		if (isMobile) handleCollapse()
 		else resetWidth()
 	}, [isMobile, resetWidth])
-
 	useEffect(() => {
-		if (isMobile) collapse()
+		if (isMobile) handleCollapse()
 	}, [pathname, isMobile])
 
 	function handleMouseDown(
@@ -101,7 +102,7 @@ export default function Navigation() {
 		document.removeEventListener('mouseup', handleMouseUp)
 	}
 
-	function collapse() {
+	function handleCollapse() {
 		if (sidebarRef.current && navbarRef.current) {
 			setIsCollapsed(true)
 			setIsResetting(true)
@@ -135,7 +136,7 @@ export default function Navigation() {
 				)}
 			>
 				<div
-					onClick={collapse}
+					onClick={handleCollapse}
 					role='button'
 					className={cn(
 						'h-6 w-6 text-muted-foreground rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600 absolute top-3 right-2 opacity-0 group-hover/sidebar:opacity-100 transition',
@@ -150,12 +151,12 @@ export default function Navigation() {
 						label='Search'
 						icon={Search}
 						isSearch
-						onClick={() => {}}
+						onClick={search.onOpen}
 					/>
 					<Item
 						label='Settings'
 						icon={Settings}
-						onClick={() => {}}
+						onClick={settings.onOpen}
 					/>
 					<Item
 						onClick={handleCreate}
